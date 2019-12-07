@@ -4,6 +4,7 @@
 
 
 const path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
@@ -27,10 +28,20 @@ module.exports = {
         ]
       },
       {
+        test: /\.scss$/,
+        use: ExtractTextPlugin.extract({
+          // ['style-loader','css-loader']
+          // fallback: 'style-loader',
+          use: ["css-loader", "sass-loader"]
+        }),
+      
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         use: "babel-loader"
-      }, {
+      }, 
+      {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: "babel-loader"
@@ -38,6 +49,9 @@ module.exports = {
     ]
   },
   // add this line
-plugins: [HtmlWebpackPluginConfig]
+plugins: [
+  new ExtractTextPlugin("css/[name].css"),
+  HtmlWebpackPluginConfig
+]
     
 }
