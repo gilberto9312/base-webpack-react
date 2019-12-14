@@ -7,17 +7,38 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const CopyPlugin = require('copy-webpack-plugin');
+
+const webpack = require('webpack');
+
+
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
+  inject: true,
   template: './client/index.html',
   filename: 'index.html',
-  inject: 'body'
-})
+  inject: 'body',
+  chunks:['modules.js','home']
+});
+
+const optimization = {
+  splitChunks: {
+      cacheGroups: {
+          commons: { test: /[\\/]node_modules[\\/]/, name: "common", chunks: "all" }
+      }
+  }
+}; 
 
 module.exports = {
-  entry: './client/index.js',
+  entry:
+   {
+    home:'./client/index.js',
+    github:'./client/github.js'
+
+  },
   output: {
     path: path.resolve('dist'),
-    filename: 'index_bundle.js'
+    filename: '[name].js'
   },
   module: {
     rules: [
@@ -52,10 +73,20 @@ module.exports = {
       }
     ]
   },
-  // add this line
+//optimization,
 plugins: [
+
+  
+    new webpack.DllReferencePlugin({
+    
+    manifest: require('./dist/modules-manifest.json')
+  }), 
   new ExtractTextPlugin("css/[name].css"),
-  HtmlWebpackPluginConfig
+  HtmlWebpackPluginConfig,
+  new CopyPlugin([
+    { from: './serve.js', to: './' }
+  ])
+  
 ]
     
 }
